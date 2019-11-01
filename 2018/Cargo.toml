@@ -1,0 +1,205 @@
+[package]
+name = "2018"
+version = "0.1.0"
+authors = ["Andres <andresnrx@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "one_a"
+path = "src/one_a.rs"
+
+[[bin]]
+name = "one_b"
+path = "src/one_b.rs"
+
+[[bin]]
+name = "two_a"
+path = "src/two_a.rs"
+
+[[bin]]
+name = "two_b"
+path = "src/two_b.rs"
+
+[[bin]]
+name = "three_a"
+path = "src/three_a.rs"
+
+[[bin]]
+name = "three_b"
+path = "src/three_b.rs"
+
+[[bin]]
+name = "four_a"
+path = "src/four_a.rs"
+
+[[bin]]
+name = "four_b"
+path = "src/four_b.rs"
+
+[[bin]]
+name = "five_a"
+path = "src/five_a.rs"
+
+[[bin]]
+name = "five_b"
+path = "src/five_b.rs"
+
+[[bin]]
+name = "six_a"
+path = "src/six_a.rs"
+
+[[bin]]
+name = "six_b"
+path = "src/six_b.rs"
+
+[[bin]]
+name = "seven_a"
+path = "src/seven_a.rs"
+
+[[bin]]
+name = "seven_b"
+path = "src/seven_b.rs"
+
+[[bin]]
+name = "eight_a"
+path = "src/eight_a.rs"
+
+[[bin]]
+name = "eight_b"
+path = "src/eight_b.rs"
+
+[[bin]]
+name = "nine_a"
+path = "src/nine_a.rs"
+
+[[bin]]
+name = "nine_b"
+path = "src/nine_b.rs"
+
+[[bin]]
+name = "ten_a"
+path = "src/ten_a.rs"
+
+[[bin]]
+name = "ten_b"
+path = "src/ten_b.rs"
+
+[[bin]]
+name = "eleven_a"
+path = "src/eleven_a.rs"
+
+[[bin]]
+name = "eleven_b"
+path = "src/eleven_b.rs"
+
+[[bin]]
+name = "twelve_a"
+path = "src/twelve_a.rs"
+
+[[bin]]
+name = "twelve_b"
+path = "src/twelve_b.rs"
+
+[[bin]]
+name = "thirteen_a"
+path = "src/thirteen_a.rs"
+
+[[bin]]
+name = "thirteen_b"
+path = "src/thirteen_b.rs"
+
+[[bin]]
+name = "fourteen_a"
+path = "src/fourteen_a.rs"
+
+[[bin]]
+name = "fourteen_b"
+path = "src/fourteen_b.rs"
+
+[[bin]]
+name = "fifteen_a"
+path = "src/fifteen_a.rs"
+
+[[bin]]
+name = "fifteen_b"
+path = "src/fifteen_b.rs"
+
+[[bin]]
+name = "sixteen_a"
+path = "src/sixteen_a.rs"
+
+[[bin]]
+name = "sixteen_b"
+path = "src/sixteen_b.rs"
+
+[[bin]]
+name = "seventeen_a"
+path = "src/seventeen_a.rs"
+
+[[bin]]
+name = "seventeen_b"
+path = "src/seventeen_b.rs"
+
+[[bin]]
+name = "eighteen_a"
+path = "src/eighteen_a.rs"
+
+[[bin]]
+name = "eighteen_b"
+path = "src/eighteen_b.rs"
+
+[[bin]]
+name = "nineteen_a"
+path = "src/nineteen_a.rs"
+
+[[bin]]
+name = "twenty_a"
+path = "src/twenty_a.rs"
+
+[[bin]]
+name = "twenty_b"
+path = "src/twenty_b.rs"
+
+[[bin]]
+name = "twenty_one_b"
+path = "src/twenty_one_b.rs"
+
+[[bin]]
+name = "twenty_two_a"
+path = "src/twenty_two_a.rs"
+
+[[bin]]
+name = "twenty_two_b"
+path = "src/twenty_two_b.rs"
+
+[[bin]]
+name = "twenty_three_a"
+path = "src/twenty_three_a.rs"
+
+[[bin]]
+name = "twenty_three_b"
+path = "src/twenty_three_b.rs"
+
+[[bin]]
+name = "twenty_four_a"
+path = "src/twenty_four_a.rs"
+
+[[bin]]
+name = "twenty_four_b"
+path = "src/twenty_four_b.rs"
+
+[[bin]]
+name = "twenty_five"
+path = "src/twenty_five.rs"
+
+[dependencies]
+common = { path = "../common" }
+reqwest = "0.9.22"
+cookie = "0.12.0"
+enum-map = "0.6.1"
+lazy_static = "1.4.0"
+regex = "1.3.1"
+rayon = "1.2.0"
+array-macro = "1.0.4"
+strum = "0.16.0"
+strum_macros = "0.16.0"
