@@ -5,6 +5,12 @@ fn solve(input: &str) -> String {
         password = password.next().expect("no valid password found");
     }
 
+    password = password.next().expect("no valid password found");
+
+    while !password.meets_requirement() {
+        password = password.next().expect("no valid password found");
+    }
+
     password.0
 }
 
@@ -67,21 +73,6 @@ impl Password {
             == 2;
 
         at_least_two_pairs
-    }
-}
-
-#[cfg(test)]
-mod eleven_a {
-    use super::*;
-
-    #[test]
-    fn test_1() {
-        assert_eq!(solve("abcdefgh"), "abcdffaa".to_string());
-    }
-
-    #[test]
-    fn test_2() {
-        assert_eq!(solve("ghijklmn"), "ghjaabcc".to_string());
     }
 }
 
