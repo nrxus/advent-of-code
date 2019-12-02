@@ -1,5 +1,3 @@
-#![feature(never_type)]
-
 use std::str::FromStr;
 
 fn solve(input: &str) -> usize {

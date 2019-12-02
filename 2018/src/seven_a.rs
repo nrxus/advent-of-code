@@ -1,5 +1,3 @@
-#![feature(never_type)]
-
 use std::{
     collections::{HashMap, HashSet},
     str,

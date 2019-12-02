@@ -1,5 +1,3 @@
-#![feature(never_type)]
-
 use std::{
     collections::{HashSet, VecDeque},
     fmt,
@@ -189,7 +187,7 @@ impl BattleField {
         frontier
     }
 
-    fn neighbors(&self, position: usize) -> [Option<(usize)>; 4] {
+    fn neighbors(&self, position: usize) -> [Option<usize>; 4] {
         let mut neighbors = [None; 4];
         if position % self.num_cols > 0 {
             neighbors[0] = Some(position - 1);
