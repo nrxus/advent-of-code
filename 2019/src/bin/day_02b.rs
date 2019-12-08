@@ -1,16 +1,14 @@
-fn solve(input: &str) -> usize {
-    let mut codes = input
-        .trim()
-        .split(',')
-        .map(|c| c.parse::<usize>().unwrap())
-        .collect::<Vec<_>>();
+use intcode::{Intcode, Machine, MachineResult};
+
+fn solve(input: &str) -> i32 {
+    let mut codes: Vec<_> = input.trim().split(",").map(Intcode::new).collect();
 
     for verb in 0..=99 {
         for noun in 0..=99 {
-            codes[1] = noun;
-            codes[2] = verb;
+            codes[1] = Intcode(noun);
+            codes[2] = Intcode(verb);
 
-            let result = intcode(codes.clone());
+            let result = first_after_run(codes.clone());
             if result == 19690720 {
                 return 100 * noun + verb;
             }
@@ -20,19 +18,11 @@ fn solve(input: &str) -> usize {
     unreachable!();
 }
 
-fn intcode(mut codes: Vec<usize>) -> usize {
-    let mut ip = 0;
-    while codes[ip] != 99 {
-        let result = match codes[ip] {
-            1 => codes[codes[ip + 1]] + codes[codes[ip + 2]],
-            2 => codes[codes[ip + 1]] * codes[codes[ip + 2]],
-            _ => unreachable!(),
-        };
-        let output_address = codes[ip + 3];
-        codes[output_address] = result;
-        ip += 4;
+fn first_after_run(codes: Vec<Intcode>) -> i32 {
+    match Machine::new(codes).execute() {
+        MachineResult::Halted(codes) => codes[0].0,
+        _ => panic!("program did not halt correctly"),
     }
-    codes[0]
 }
 
 common::read_main!();

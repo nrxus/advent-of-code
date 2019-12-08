@@ -6,3 +6,5 @@ edition = "2018"
 
 [dependencies]
 common = { path = "../common" }
+intcode = { path = "../intcode" }
+itertools = "0.8.2"
