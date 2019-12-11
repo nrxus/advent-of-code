@@ -22,16 +22,11 @@ fn solve(input: &str) -> Image {
         })
         .collect();
 
-    Image {
-        width,
-        height,
-        pixels,
-    }
+    Image { width, pixels }
 }
 
 struct Image {
     width: usize,
-    height: usize,
     pixels: Vec<Pixel>,
 }
 

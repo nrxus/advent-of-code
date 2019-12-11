@@ -1,6 +1,6 @@
-use intcode::{Intcode, Machine, MachineResult};
+use intcode::{Intcode, Machine};
 
-fn solve(input: &str) -> i32 {
+fn solve(input: &str) -> i64 {
     let mut codes: Vec<_> = input.trim().split(",").map(Intcode::new).collect();
 
     for verb in 0..=99 {
@@ -18,11 +18,12 @@ fn solve(input: &str) -> i32 {
     unreachable!();
 }
 
-fn first_after_run(codes: Vec<Intcode>) -> i32 {
-    match Machine::new(codes).execute() {
-        MachineResult::Halted(codes) => codes[0].0,
-        _ => panic!("program did not halt correctly"),
-    }
+fn first_after_run(codes: Vec<Intcode>) -> i64 {
+    Machine::new(codes)
+        .run_to_halt()
+        .expect("did not halt")
+        .get(0)
+        .0
 }
 
 common::read_main!();

@@ -1,51 +1,56 @@
-use std::convert::TryInto;
+use std::{collections::HashMap, convert::TryInto};
 
 pub enum MachineResult {
     AwaitingInput(AwaitingInput),
     HasOutput(HasOutput),
-    Halted(Vec<Intcode>),
+    Halted(Memory),
 }
 
 pub struct AwaitingInput {
     ip: usize,
-    codes: Vec<Intcode>,
+    relative: usize,
+    memory: Memory,
+    save_param: ParamType,
 }
 
 impl AwaitingInput {
-    pub fn provide(self, input: i32) -> Machine {
+    pub fn provide(self, input: i64) -> Machine {
         Machine {
             program: Program {
                 ip: self.ip + 1,
-                awaiting: Awaiting::SaveLocation(input),
+                awaiting: Awaiting::SaveLocation(input, self.save_param),
+                relative: self.relative,
             },
-            codes: self.codes,
+            memory: self.memory,
         }
     }
 }
 
 pub struct HasOutput {
-    output: i32,
+    output: i64,
     ip: usize,
-    codes: Vec<Intcode>,
+    relative: usize,
+    memory: Memory,
 }
 
 impl HasOutput {
-    pub fn read(self) -> (i32, Machine) {
+    pub fn read(self) -> (i64, Machine) {
         (
             self.output,
             Machine {
                 program: Program {
                     ip: self.ip + 1,
                     awaiting: Awaiting::Instruction(AwaitingInstruction {}),
+                    relative: self.relative,
                 },
-                codes: self.codes,
+                memory: self.memory,
             },
         )
     }
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Intcode(pub i32);
+pub struct Intcode(pub i64);
 
 impl Intcode {
     pub fn new(code: &str) -> Self {
@@ -60,32 +65,64 @@ impl Intcode {
 #[derive(Debug)]
 pub struct Machine {
     program: Program,
-    codes: Vec<Intcode>,
+    memory: Memory,
 }
 
 impl Machine {
+    pub fn from_str(input: &str) -> Self {
+        let codes: Vec<_> = input.trim().split(",").map(Intcode::new).collect();
+        Machine::new(codes)
+    }
+
     pub fn new(codes: Vec<Intcode>) -> Self {
         Machine {
             program: Program::new(),
-            codes,
+            memory: Memory {
+                embedded: codes,
+                external: HashMap::new(),
+            },
+        }
+    }
+
+    pub fn run_to_halt(self) -> Result<Memory, String> {
+        match self.execute() {
+            MachineResult::Halted(memory) => Ok(memory),
+            MachineResult::HasOutput(output) => Err(format!(
+                "expected a halt; got output: '{}'",
+                output.read().0
+            )),
+            MachineResult::AwaitingInput(_) => Err("expected halt; but needs input".to_string()),
         }
     }
 
     pub fn execute(mut self) -> MachineResult {
         loop {
-            match self.program.next(&mut self.codes) {
-                NextInstruction::Halt => break MachineResult::Halted(self.codes),
-                NextInstruction::AwaitingInput(ip) => {
+            // dbg!(&self);
+
+            match self.program.next(&mut self.memory) {
+                NextInstruction::Halt => break MachineResult::Halted(self.memory),
+                NextInstruction::AwaitingInput {
+                    ip,
+                    relative,
+                    save_param,
+                } => {
                     break MachineResult::AwaitingInput(AwaitingInput {
                         ip,
-                        codes: self.codes,
+                        save_param,
+                        relative: relative,
+                        memory: self.memory,
                     })
                 }
-                NextInstruction::HasOutput(output, ip) => {
+                NextInstruction::HasOutput {
+                    output,
+                    ip,
+                    relative,
+                } => {
                     break MachineResult::HasOutput(HasOutput {
                         output,
                         ip,
-                        codes: self.codes,
+                        relative,
+                        memory: self.memory,
                     })
                 }
                 NextInstruction::Continue(p) => self.program = p,
@@ -97,13 +134,22 @@ impl Machine {
 enum NextInstruction {
     Continue(Program),
     Halt,
-    AwaitingInput(usize),
-    HasOutput(i32, usize),
+    AwaitingInput {
+        ip: usize,
+        relative: usize,
+        save_param: ParamType,
+    },
+    HasOutput {
+        output: i64,
+        ip: usize,
+        relative: usize,
+    },
 }
 
 #[derive(Debug)]
 struct Program {
     ip: usize,
+    relative: usize,
     awaiting: Awaiting,
 }
 
@@ -111,12 +157,13 @@ impl Program {
     fn new() -> Self {
         Program {
             ip: 0,
+            relative: 0,
             awaiting: Awaiting::Instruction(AwaitingInstruction::new()),
         }
     }
 
-    fn next(self, codes: &mut [Intcode]) -> NextInstruction {
-        let code = codes[self.ip];
+    fn next(mut self, memory: &mut Memory) -> NextInstruction {
+        let code = memory.get(self.ip);
 
         let program = match self.awaiting {
             Awaiting::Instruction(ai) => match ai.provide(code) {
@@ -124,30 +171,50 @@ impl Program {
                 ProgramState::Running(awaiting) => Program {
                     awaiting,
                     ip: self.ip + 1,
+                    relative: self.relative,
                 },
-                ProgramState::Waiting => return NextInstruction::AwaitingInput(self.ip),
+                ProgramState::Waiting(save_param) => {
+                    return NextInstruction::AwaitingInput {
+                        save_param,
+                        ip: self.ip,
+                        relative: self.relative,
+                    }
+                }
             },
             Awaiting::Params(ap) => Program {
-                awaiting: Awaiting::SingleParam(ap.provide(code, codes)),
+                awaiting: Awaiting::SingleParam(ap.provide(code, &*memory, self.relative)),
                 ip: self.ip + 1,
+                relative: self.relative,
             },
-            Awaiting::SingleParam(sp) => match sp.provide(code, &*codes) {
+            Awaiting::SingleParam(sp) => match sp.provide(code, &*memory, &mut self.relative) {
                 PostOperation::Await(awaiting) => Program {
                     awaiting,
                     ip: self.ip + 1,
+                    relative: self.relative,
                 },
                 PostOperation::Jump(ip) => Program {
                     awaiting: Awaiting::Instruction(AwaitingInstruction {}),
+                    relative: self.relative,
                     ip,
                 },
                 PostOperation::Output(output) => {
-                    return NextInstruction::HasOutput(output, self.ip)
+                    return NextInstruction::HasOutput {
+                        output,
+                        ip: self.ip,
+                        relative: self.relative,
+                    }
                 }
             },
-            Awaiting::SaveLocation(value) => {
-                let address = code.as_position();
-                codes[address] = Intcode(value);
+            Awaiting::SaveLocation(value, param_type) => {
+                let address = match param_type {
+                    ParamType::Immediate => panic!("cannot save into an immediate"),
+                    ParamType::Position => code.as_position(),
+                    ParamType::Relative => (self.relative as i64 + code.0) as usize,
+                };
+
+                memory.set(address, value);
                 Program {
+                    relative: self.relative,
                     awaiting: Awaiting::Instruction(AwaitingInstruction {}),
                     ip: self.ip + 1,
                 }
@@ -163,7 +230,7 @@ enum Awaiting {
     Instruction(AwaitingInstruction),
     Params(AwaitingParams),
     SingleParam(AwaitingSingle),
-    SaveLocation(i32),
+    SaveLocation(i64, ParamType),
 }
 
 #[derive(Debug)]
@@ -180,10 +247,11 @@ impl AwaitingInstruction {
 
         let param_type = |param_number: u32| {
             let code = (instruction / 10u32.pow(param_number + 1)) % 10;
-            if code == 0 {
-                ParamType::Position
-            } else {
-                ParamType::Immediate
+            match code {
+                0 => ParamType::Position,
+                1 => ParamType::Immediate,
+                2 => ParamType::Relative,
+                _ => panic!("unexpected param mode"),
             }
         };
 
@@ -191,14 +259,14 @@ impl AwaitingInstruction {
             1 => Awaiting::Params(AwaitingParams {
                 first_param: param_type(1),
                 second_param: param_type(2),
-                operation: Operation::Add,
+                operation: Operation::Add(param_type(3)),
             }),
             2 => Awaiting::Params(AwaitingParams {
                 first_param: param_type(1),
                 second_param: param_type(2),
-                operation: Operation::Multiply,
+                operation: Operation::Multiply(param_type(3)),
             }),
-            3 => return ProgramState::Waiting,
+            3 => return ProgramState::Waiting(param_type(1)),
             4 => Awaiting::SingleParam(AwaitingSingle {
                 param: param_type(1),
                 operation: UnaryOperation::Output,
@@ -216,12 +284,16 @@ impl AwaitingInstruction {
             7 => Awaiting::Params(AwaitingParams {
                 first_param: param_type(1),
                 second_param: param_type(2),
-                operation: Operation::LessThan,
+                operation: Operation::LessThan(param_type(3)),
             }),
             8 => Awaiting::Params(AwaitingParams {
                 first_param: param_type(1),
                 second_param: param_type(2),
-                operation: Operation::Equal,
+                operation: Operation::Equal(param_type(3)),
+            }),
+            9 => Awaiting::SingleParam(AwaitingSingle {
+                param: param_type(1),
+                operation: UnaryOperation::AdjustRelative,
             }),
             99 => return ProgramState::Halted,
             opcode => unimplemented!("opcode: '{}' not yet implemented", opcode),
@@ -239,22 +311,26 @@ struct AwaitingParams {
 }
 
 impl AwaitingParams {
-    fn provide(self, code: Intcode, codes: &mut [Intcode]) -> AwaitingSingle {
+    fn provide(self, code: Intcode, memory: &Memory, relative: usize) -> AwaitingSingle {
         let param = match self.first_param {
             ParamType::Immediate => code.0,
             ParamType::Position => {
                 let position = code.as_position();
-                codes[position].0
+                memory.get(position).0
+            }
+            ParamType::Relative => {
+                let position = (relative as i64 + code.0) as usize;
+                memory.get(position).0
             }
         };
 
         let operation = match self.operation {
-            Operation::Add => UnaryOperation::Add(param),
-            Operation::Multiply => UnaryOperation::Multiply(param),
+            Operation::Add(save_param) => UnaryOperation::Add(param, save_param),
+            Operation::Multiply(save_param) => UnaryOperation::Multiply(param, save_param),
             Operation::JumpIfTrue => UnaryOperation::Jump(param != 0),
             Operation::JumpIfFalse => UnaryOperation::Jump(param == 0),
-            Operation::LessThan => UnaryOperation::LessThan(param),
-            Operation::Equal => UnaryOperation::Equal(param),
+            Operation::LessThan(save_param) => UnaryOperation::LessThan(param, save_param),
+            Operation::Equal(save_param) => UnaryOperation::Equal(param, save_param),
         };
 
         AwaitingSingle {
@@ -271,22 +347,30 @@ struct AwaitingSingle {
 }
 
 impl AwaitingSingle {
-    fn provide(self, code: Intcode, codes: &[Intcode]) -> PostOperation {
+    fn provide(self, code: Intcode, memory: &Memory, relative: &mut usize) -> PostOperation {
         let param = match self.param {
             ParamType::Immediate => code.0,
             ParamType::Position => {
                 let position = code.as_position();
-                codes[position].0
+                memory.get(position).0
+            }
+            ParamType::Relative => {
+                let position = (*relative as i64 + code.0) as usize;
+                memory.get(position).0
             }
         };
 
         match self.operation {
             UnaryOperation::Output => PostOperation::Output(param),
-            UnaryOperation::Add(adder) => {
-                PostOperation::Await(Awaiting::SaveLocation(adder + param))
+            UnaryOperation::AdjustRelative => {
+                *relative = *relative + param as usize;
+                PostOperation::Await(Awaiting::Instruction(AwaitingInstruction {}))
             }
-            UnaryOperation::Multiply(factor) => {
-                PostOperation::Await(Awaiting::SaveLocation(factor * param))
+            UnaryOperation::Add(adder, save_param) => {
+                PostOperation::Await(Awaiting::SaveLocation(adder + param, save_param))
+            }
+            UnaryOperation::Multiply(factor, save_param) => {
+                PostOperation::Await(Awaiting::SaveLocation(factor * param, save_param))
             }
             UnaryOperation::Jump(jump) => {
                 if jump {
@@ -295,11 +379,11 @@ impl AwaitingSingle {
                     PostOperation::Await(Awaiting::Instruction(AwaitingInstruction {}))
                 }
             }
-            UnaryOperation::LessThan(value) => {
-                PostOperation::Await(Awaiting::SaveLocation((value < param) as i32))
+            UnaryOperation::LessThan(value, save_param) => {
+                PostOperation::Await(Awaiting::SaveLocation((value < param) as i64, save_param))
             }
-            UnaryOperation::Equal(value) => {
-                PostOperation::Await(Awaiting::SaveLocation((value == param) as i32))
+            UnaryOperation::Equal(value, save_param) => {
+                PostOperation::Await(Awaiting::SaveLocation((value == param) as i64, save_param))
             }
         }
     }
@@ -307,38 +391,65 @@ impl AwaitingSingle {
 
 #[derive(Debug)]
 enum Operation {
-    Add,
-    Multiply,
+    Add(ParamType),
+    Multiply(ParamType),
     JumpIfTrue,
     JumpIfFalse,
-    LessThan,
-    Equal,
+    LessThan(ParamType),
+    Equal(ParamType),
 }
 
 #[derive(Debug)]
 enum UnaryOperation {
     Output,
-    Add(i32),
-    Multiply(i32),
+    AdjustRelative,
+    Add(i64, ParamType),
+    Multiply(i64, ParamType),
     Jump(bool),
-    LessThan(i32),
-    Equal(i32),
+    LessThan(i64, ParamType),
+    Equal(i64, ParamType),
 }
 
 #[derive(Debug)]
 enum ParamType {
     Immediate,
     Position,
+    Relative,
 }
 
 enum ProgramState {
     Running(Awaiting),
-    Waiting,
+    Waiting(ParamType),
     Halted,
 }
 
 enum PostOperation {
     Await(Awaiting),
     Jump(usize),
-    Output(i32),
+    Output(i64),
+}
+
+#[derive(Debug)]
+pub struct Memory {
+    embedded: Vec<Intcode>,
+    external: HashMap<usize, Intcode>,
+}
+
+impl Memory {
+    pub fn get(&self, pos: usize) -> Intcode {
+        self.embedded
+            .get(pos)
+            .or_else(|| self.external.get(&pos))
+            .cloned()
+            .unwrap_or(Intcode(0))
+    }
+
+    fn set(&mut self, pos: usize, value: i64) {
+        match self.embedded.get_mut(pos) {
+            Some(v) => *v = Intcode(value),
+            None => {
+                self.external.insert(pos, Intcode(value));
+            }
+        }
+    }
 }

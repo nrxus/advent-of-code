@@ -1,6 +1,6 @@
 use intcode::{Intcode, Machine, MachineResult};
 
-fn solve(input: &str) -> i32 {
+fn solve(input: &str) -> i64 {
     let codes: Vec<_> = input.trim().split(",").map(Intcode::new).collect();
     let mut machine = Machine::new(codes);
     let mut input = Some(5);

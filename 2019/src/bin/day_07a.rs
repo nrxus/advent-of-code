@@ -1,7 +1,7 @@
 use intcode::{Intcode, Machine, MachineResult};
 use itertools::Itertools;
 
-fn solve(input: &str) -> i32 {
+fn solve(input: &str) -> i64 {
     let codes: Vec<_> = input.trim().split(",").map(Intcode::new).collect();
     let permutations = (0..5).permutations(5);
 
