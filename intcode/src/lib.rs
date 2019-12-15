@@ -363,7 +363,7 @@ impl AwaitingSingle {
         match self.operation {
             UnaryOperation::Output => PostOperation::Output(param),
             UnaryOperation::AdjustRelative => {
-                *relative = *relative + param as usize;
+                *relative = (*relative as i64 + param) as usize;
                 PostOperation::Await(Awaiting::Instruction(AwaitingInstruction {}))
             }
             UnaryOperation::Add(adder, save_param) => {
