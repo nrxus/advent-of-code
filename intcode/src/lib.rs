@@ -62,7 +62,7 @@ impl Intcode {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Machine {
     program: Program,
     memory: Memory,
@@ -146,7 +146,7 @@ enum NextInstruction {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Program {
     ip: usize,
     relative: usize,
@@ -225,7 +225,7 @@ impl Program {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Awaiting {
     Instruction(AwaitingInstruction),
     Params(AwaitingParams),
@@ -233,7 +233,7 @@ enum Awaiting {
     SaveLocation(i64, ParamType),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct AwaitingInstruction {}
 
 impl AwaitingInstruction {
@@ -303,7 +303,7 @@ impl AwaitingInstruction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct AwaitingParams {
     first_param: ParamType,
     second_param: ParamType,
@@ -340,7 +340,7 @@ impl AwaitingParams {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct AwaitingSingle {
     param: ParamType,
     operation: UnaryOperation,
@@ -389,7 +389,7 @@ impl AwaitingSingle {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Operation {
     Add(ParamType),
     Multiply(ParamType),
@@ -399,7 +399,7 @@ enum Operation {
     Equal(ParamType),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum UnaryOperation {
     Output,
     AdjustRelative,
@@ -410,7 +410,7 @@ enum UnaryOperation {
     Equal(i64, ParamType),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum ParamType {
     Immediate,
     Position,
@@ -429,7 +429,7 @@ enum PostOperation {
     Output(i64),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Memory {
     embedded: Vec<Intcode>,
     external: HashMap<usize, Intcode>,
