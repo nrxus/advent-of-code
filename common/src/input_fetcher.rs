@@ -1,5 +1,5 @@
 use cookie::Cookie;
-use reqwest::{header, Client};
+use reqwest::{blocking::Client, header};
 use std::env;
 
 #[derive(Debug)]
@@ -31,6 +31,6 @@ pub fn try_fetch(day: u8) -> Result<String, Error> {
         .get(&url)
         .header(header::COOKIE, cookie.to_string())
         .send()
-        .and_then(|mut r| r.text())
+        .and_then(reqwest::blocking::Response::text)
         .map_err(Error::Request)
 }
