@@ -45,8 +45,11 @@ struct Dependency {
     dependent: u8,
 }
 
+#[derive(Debug)]
+enum Never {}
+
 impl str::FromStr for Dependency {
-    type Err = !;
+    type Err = Never;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let input = input.as_bytes();

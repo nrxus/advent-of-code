@@ -1,5 +1,4 @@
 #![feature(try_trait)]
-#![feature(vec_remove_item)]
 
 use std::{collections::HashSet, num::ParseIntError, option::NoneError, str::FromStr};
 
@@ -11,9 +10,7 @@ fn solve(input: &str) -> u16 {
     for c in claims {
         clean_ids.push(c.id);
         let conflicts = fabric.claim(&c);
-        conflicts.iter().for_each(|c| {
-            clean_ids.remove_item(c);
-        })
+        clean_ids.retain(|clean| !conflicts.contains(clean));
     }
 
     clean_ids[0]

@@ -1,4 +1,4 @@
-#![feature(try_trait, drain_filter)]
+#![feature(try_trait)]
 
 use std::{cmp::Ordering, collections::BinaryHeap, num::ParseIntError, option::NoneError};
 

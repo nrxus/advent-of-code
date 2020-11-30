@@ -244,8 +244,11 @@ impl Tile {
     }
 }
 
+#[derive(Debug)]
+enum Never {}
+
 impl FromStr for BattleField {
-    type Err = !;
+    type Err = Never;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut lines = input.lines();
