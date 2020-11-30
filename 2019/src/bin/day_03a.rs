@@ -1,5 +1,3 @@
-//#![feature(slice_patterns)]
-
 use std::collections::HashSet;
 
 fn solve(input: &str) -> u32 {

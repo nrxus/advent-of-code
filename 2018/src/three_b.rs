@@ -1,6 +1,4 @@
-#![feature(try_trait)]
-
-use std::{collections::HashSet, num::ParseIntError, option::NoneError, str::FromStr};
+use std::{collections::HashSet, num::ParseIntError, str::FromStr};
 
 fn solve(input: &str) -> u16 {
     let mut clean_ids = Vec::with_capacity(100);
@@ -113,14 +111,14 @@ impl FromStr for Claim {
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let mut line = line.split('@');
-        let id = line.next()?.trim()[1..].parse()?;
-        let mut line = line.next()?.split(':');
-        let mut top_left = line.next()?.trim().split(',');
-        let left = top_left.next()?.parse()?;
-        let top = top_left.next()?.parse()?;
-        let mut size = line.next()?.trim().split('x');
-        let right = left + size.next()?.parse::<usize>()?;
-        let bottom = top + size.next()?.parse::<usize>()?;
+        let id = line.next().ok_or(ClaimParseError)?.trim()[1..].parse()?;
+        let mut line = line.next().ok_or(ClaimParseError)?.split(':');
+        let mut top_left = line.next().ok_or(ClaimParseError)?.trim().split(',');
+        let left = top_left.next().ok_or(ClaimParseError)?.parse()?;
+        let top = top_left.next().ok_or(ClaimParseError)?.parse()?;
+        let mut size = line.next().ok_or(ClaimParseError)?.trim().split('x');
+        let right = left + size.next().ok_or(ClaimParseError)?.parse::<usize>()?;
+        let bottom = top + size.next().ok_or(ClaimParseError)?.parse::<usize>()?;
         Ok(Claim {
             id,
             top_left: (left, top),
@@ -131,12 +129,6 @@ impl FromStr for Claim {
 
 #[derive(Debug)]
 struct ClaimParseError;
-
-impl From<NoneError> for ClaimParseError {
-    fn from(_: NoneError) -> Self {
-        ClaimParseError
-    }
-}
 
 impl From<ParseIntError> for ClaimParseError {
     fn from(_: ParseIntError) -> Self {

@@ -118,7 +118,6 @@ mod tests {
 -1,-2,0,-2";
         assert_eq!(solve(input), 8);
     }
-
 }
 
 common::read_main!();

@@ -1,9 +1,6 @@
-#![feature(try_trait)]
-
 use std::{
     collections::{HashMap, HashSet},
     num::ParseIntError,
-    option::NoneError,
 };
 
 use lazy_static::lazy_static;
@@ -138,19 +135,19 @@ After:\s+\[(?P<a0>\d+), (?P<a1>\d+), (?P<a2>\d+), (?P<a3>\d+)\]"
             .unwrap();
         }
 
-        let caps = RE.captures(input)?;
-        let b0: u16 = caps.name("b0")?.as_str().parse()?;
-        let b1: u16 = caps.name("b1")?.as_str().parse()?;
-        let b2: u16 = caps.name("b2")?.as_str().parse()?;
-        let b3: u16 = caps.name("b3")?.as_str().parse()?;
-        let i0: u16 = caps.name("i0")?.as_str().parse()?;
-        let i1: u16 = caps.name("i1")?.as_str().parse()?;
-        let i2: u16 = caps.name("i2")?.as_str().parse()?;
-        let i3: u16 = caps.name("i3")?.as_str().parse()?;
-        let a0: u16 = caps.name("a0")?.as_str().parse()?;
-        let a1: u16 = caps.name("a1")?.as_str().parse()?;
-        let a2: u16 = caps.name("a2")?.as_str().parse()?;
-        let a3: u16 = caps.name("a3")?.as_str().parse()?;
+        let caps = RE.captures(input).ok_or(ParsingError)?;
+        let b0: u16 = caps.name("b0").ok_or(ParsingError)?.as_str().parse()?;
+        let b1: u16 = caps.name("b1").ok_or(ParsingError)?.as_str().parse()?;
+        let b2: u16 = caps.name("b2").ok_or(ParsingError)?.as_str().parse()?;
+        let b3: u16 = caps.name("b3").ok_or(ParsingError)?.as_str().parse()?;
+        let i0: u16 = caps.name("i0").ok_or(ParsingError)?.as_str().parse()?;
+        let i1: u16 = caps.name("i1").ok_or(ParsingError)?.as_str().parse()?;
+        let i2: u16 = caps.name("i2").ok_or(ParsingError)?.as_str().parse()?;
+        let i3: u16 = caps.name("i3").ok_or(ParsingError)?.as_str().parse()?;
+        let a0: u16 = caps.name("a0").ok_or(ParsingError)?.as_str().parse()?;
+        let a1: u16 = caps.name("a1").ok_or(ParsingError)?.as_str().parse()?;
+        let a2: u16 = caps.name("a2").ok_or(ParsingError)?.as_str().parse()?;
+        let a3: u16 = caps.name("a3").ok_or(ParsingError)?.as_str().parse()?;
 
         Ok(Sample {
             before: Registers([b0, b1, b2, b3]),
@@ -162,12 +159,6 @@ After:\s+\[(?P<a0>\d+), (?P<a1>\d+), (?P<a2>\d+), (?P<a3>\d+)\]"
 
 #[derive(Debug)]
 struct ParsingError;
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
-        ParsingError
-    }
-}
 
 impl From<ParseIntError> for ParsingError {
     fn from(_: ParseIntError) -> Self {

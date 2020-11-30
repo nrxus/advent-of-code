@@ -57,7 +57,7 @@ fn solve(input: &str) -> usize {
 
         fuel_generated += fuel_produced;
 
-	// recycle every by-product for every fuel we created
+        // recycle every by-product for every fuel we created
         by_products_per_fuel.iter().for_each(|(name, quantity)| {
             *recyclable.entry(name).or_insert(0) += quantity * fuel_produced;
         });
@@ -70,7 +70,7 @@ fn solve(input: &str) -> usize {
         } = nanofactory.calculate_ores(recyclable);
 
         // but this requires more chemicals than what we had to recycle so remove how many ores
-	// those extra chemicals took
+        // those extra chemicals took
         let Product {
             num_ores: missing_ores,
             by_products,

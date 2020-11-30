@@ -1,6 +1,4 @@
-#![feature(try_trait)]
-
-use std::{num::ParseIntError, option::NoneError};
+use std::num::ParseIntError;
 
 use regex::Regex;
 
@@ -10,11 +8,11 @@ fn solve(input: &str) -> usize {
         .trim()
         .lines()
         .map(|l| {
-            let caps = regex.captures(l)?;
-            let x = caps.name("x")?.as_str().parse()?;
-            let y = caps.name("y")?.as_str().parse()?;
-            let z = caps.name("z")?.as_str().parse()?;
-            let radius = caps.name("r")?.as_str().parse()?;
+            let caps = regex.captures(l).ok_or(ParsingError)?;
+            let x = caps.name("x").ok_or(ParsingError)?.as_str().parse()?;
+            let y = caps.name("y").ok_or(ParsingError)?.as_str().parse()?;
+            let z = caps.name("z").ok_or(ParsingError)?.as_str().parse()?;
+            let radius = caps.name("r").ok_or(ParsingError)?.as_str().parse()?;
             let pos = (x, y, z);
             Ok(Nanobot { pos, radius })
         })
@@ -46,12 +44,6 @@ struct ParsingError;
 
 impl From<regex::Error> for ParsingError {
     fn from(_: regex::Error) -> Self {
-        ParsingError
-    }
-}
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
         ParsingError
     }
 }

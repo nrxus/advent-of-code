@@ -1,8 +1,6 @@
-#![feature(try_trait)]
-
 use common::extensions::cart_product;
 use regex::Regex;
-use std::{fmt, num::ParseIntError, option::NoneError, str::FromStr};
+use std::{fmt, num::ParseIntError, str::FromStr};
 
 fn solve(input: &str) -> u32 {
     Cave::from_str(input).unwrap().danger_level()
@@ -40,10 +38,20 @@ impl FromStr for Cave {
             r"depth: (?P<depth>\d+)
 target: (?P<tx>\d+),(?P<ty>\d+)",
         )?;
-        let caps = regex.captures(input)?;
-        let depth: usize = caps.name("depth")?.as_str().parse()?;
-        let cols = caps.name("tx")?.as_str().parse::<usize>()? + 1;
-        let rows = caps.name("ty")?.as_str().parse::<usize>()? + 1;
+        let caps = regex.captures(input).ok_or(ParsingError)?;
+        let depth: usize = caps.name("depth").ok_or(ParsingError)?.as_str().parse()?;
+        let cols = caps
+            .name("tx")
+            .ok_or(ParsingError)?
+            .as_str()
+            .parse::<usize>()?
+            + 1;
+        let rows = caps
+            .name("ty")
+            .ok_or(ParsingError)?
+            .as_str()
+            .parse::<usize>()?
+            + 1;
         let regions = cart_product(0..rows, 0..cols)
             .scan(Vec::with_capacity(cols * rows), |levels, (y, x)| {
                 let geo_index = if x == 0 && y == 0 || x == cols - 1 && y == rows - 1 {
@@ -77,12 +85,6 @@ struct ParsingError;
 
 impl From<regex::Error> for ParsingError {
     fn from(_: regex::Error) -> Self {
-        ParsingError
-    }
-}
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
         ParsingError
     }
 }

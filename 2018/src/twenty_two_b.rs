@@ -1,5 +1,3 @@
-#![feature(try_trait)]
-
 use common::extensions::{cart_product, AbsDiff};
 use regex::Regex;
 use std::{
@@ -7,7 +5,6 @@ use std::{
     collections::{BinaryHeap, HashMap, HashSet},
     fmt,
     num::ParseIntError,
-    option::NoneError,
     str::FromStr,
 };
 
@@ -274,10 +271,10 @@ impl FromStr for Cave {
             r"depth: (?P<depth>\d+)
 target: (?P<tx>\d+),(?P<ty>\d+)",
         )?;
-        let caps = regex.captures(input)?;
-        let depth: usize = caps.name("depth")?.as_str().parse()?;
-        let tx: usize = caps.name("tx")?.as_str().parse()?;
-        let ty: usize = caps.name("ty")?.as_str().parse()?;
+        let caps = regex.captures(input).ok_or(ParsingError)?;
+        let depth: usize = caps.name("depth").ok_or(ParsingError)?.as_str().parse()?;
+        let tx: usize = caps.name("tx").ok_or(ParsingError)?.as_str().parse()?;
+        let ty: usize = caps.name("ty").ok_or(ParsingError)?.as_str().parse()?;
         //pad it so the search can go beyond the target down and to the right
         let cols = tx + 125;
         let rows = ty + 1;
@@ -312,12 +309,6 @@ struct ParsingError;
 
 impl From<regex::Error> for ParsingError {
     fn from(_: regex::Error) -> Self {
-        ParsingError
-    }
-}
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
         ParsingError
     }
 }

@@ -1,5 +1,3 @@
-//#![feature(slice_patterns)]
-
 use std::collections::{HashMap, HashSet};
 
 fn solve(input: &str) -> usize {

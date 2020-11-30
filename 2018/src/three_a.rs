@@ -1,6 +1,4 @@
-#![feature(try_trait)]
-
-use std::{num::ParseIntError, option::NoneError, str::FromStr};
+use std::{num::ParseIntError, str::FromStr};
 
 fn solve(input: &str) -> usize {
     input
@@ -98,13 +96,13 @@ impl FromStr for Claim {
     type Err = ClaimParseError;
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
-        let mut line = line.split('@').nth(1)?.split(':');
-        let mut top_left = line.next()?.trim().split(',');
-        let left = top_left.next()?.parse()?;
-        let top = top_left.next()?.parse()?;
-        let mut size = line.next()?.trim().split('x');
-        let right = left + size.next()?.parse::<usize>()?;
-        let bottom = top + size.next()?.parse::<usize>()?;
+        let mut line = line.split('@').nth(1).ok_or(ClaimParseError)?.split(':');
+        let mut top_left = line.next().ok_or(ClaimParseError)?.trim().split(',');
+        let left = top_left.next().ok_or(ClaimParseError)?.parse()?;
+        let top = top_left.next().ok_or(ClaimParseError)?.parse()?;
+        let mut size = line.next().ok_or(ClaimParseError)?.trim().split('x');
+        let right = left + size.next().ok_or(ClaimParseError)?.parse::<usize>()?;
+        let bottom = top + size.next().ok_or(ClaimParseError)?.parse::<usize>()?;
         Ok(Claim {
             top_left: (left, top),
             bottom_right: (right, bottom),
@@ -114,12 +112,6 @@ impl FromStr for Claim {
 
 #[derive(Debug)]
 struct ClaimParseError;
-
-impl From<NoneError> for ClaimParseError {
-    fn from(_: NoneError) -> Self {
-        ClaimParseError
-    }
-}
 
 impl From<ParseIntError> for ClaimParseError {
     fn from(_: ParseIntError) -> Self {

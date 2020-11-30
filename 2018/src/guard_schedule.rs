@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::TryFrom, num::ParseIntError, option::NoneError};
+use std::{collections::HashMap, convert::TryFrom, num::ParseIntError};
 
 pub struct Schedule {
     pub minutes: [GuardState; 60],
@@ -75,7 +75,11 @@ impl<'s> TryFrom<&'s str> for Entry<'s> {
         } else if action.contains("wakes up") {
             Ok(Entry::WakingUp(date))
         } else {
-            let id = action[7..].split(' ').nth(0)?.parse::<u16>()?;
+            let id = action[7..]
+                .split(' ')
+                .nth(0)
+                .ok_or(EntryParseError)?
+                .parse::<u16>()?;
             Ok(Entry::BeginShift(date, id))
         }
     }
@@ -83,12 +87,6 @@ impl<'s> TryFrom<&'s str> for Entry<'s> {
 
 #[derive(Debug)]
 pub struct EntryParseError;
-
-impl From<NoneError> for EntryParseError {
-    fn from(_: NoneError) -> Self {
-        EntryParseError
-    }
-}
 
 impl From<ParseIntError> for EntryParseError {
     fn from(_: ParseIntError) -> Self {

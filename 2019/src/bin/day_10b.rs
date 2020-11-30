@@ -1,4 +1,3 @@
-#![feature(drain_filter)]
 use std::collections::{HashMap, HashSet};
 
 fn solve(input: &str) -> usize {

@@ -1,6 +1,4 @@
-#![feature(try_trait)]
-
-use std::{num::ParseIntError, ops::RangeInclusive, option::NoneError, str::FromStr};
+use std::{num::ParseIntError, ops::RangeInclusive, str::FromStr};
 
 use regex::Regex;
 
@@ -147,16 +145,26 @@ impl FromStr for World {
     type Err = ParsingError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let regex = Regex::new(r"(?P<point_axis>[x|y])=(?P<point>\d+), (?P<range_axis>[x|y])=(?P<range_start>\d+)..(?P<range_end>\d+)")?;
+        let regex = Regex::new(
+            r"(?P<point_axis>[x|y])=(?P<point>\d+), (?P<range_axis>[x|y])=(?P<range_start>\d+)..(?P<range_end>\d+)",
+        )?;
         let groups: Vec<ClayGroup> = input
             .lines()
             .map(|l| {
-                let caps = regex.captures(l)?;
-                let point_axis = caps.name("point_axis")?.as_str();
-                let point: usize = caps.name("point")?.as_str().parse()?;
-                let range_axis = caps.name("range_axis")?.as_str();
-                let range_start: usize = caps.name("range_start")?.as_str().parse()?;
-                let range_end: usize = caps.name("range_end")?.as_str().parse()?;
+                let caps = regex.captures(l).ok_or(ParsingError)?;
+                let point_axis = caps.name("point_axis").ok_or(ParsingError)?.as_str();
+                let point: usize = caps.name("point").ok_or(ParsingError)?.as_str().parse()?;
+                let range_axis = caps.name("range_axis").ok_or(ParsingError)?.as_str();
+                let range_start: usize = caps
+                    .name("range_start")
+                    .ok_or(ParsingError)?
+                    .as_str()
+                    .parse()?;
+                let range_end: usize = caps
+                    .name("range_end")
+                    .ok_or(ParsingError)?
+                    .as_str()
+                    .parse()?;
 
                 let range = range_start..=range_end;
                 if point_axis == "x" && range_axis == "y" {
@@ -176,7 +184,8 @@ impl FromStr for World {
                 ClayGroup::Vertical(x, _) => x,
             })
             .min()
-            .map(|x| x - 1)?; //allow for spill on the left
+            .map(|x| x - 1)
+            .ok_or(ParsingError)?; //allow for spill on the left
 
         let max_x = groups
             .iter()
@@ -185,7 +194,8 @@ impl FromStr for World {
                 ClayGroup::Vertical(x, _) => x,
             })
             .max()
-            .map(|x| x + 1)?; //allow for spill on the top
+            .map(|x| x + 1)
+            .ok_or(ParsingError)?; //allow for spill on the top
 
         let min_y = groups
             .iter()
@@ -194,7 +204,8 @@ impl FromStr for World {
                 ClayGroup::Vertical(_, range) => range.start(),
             })
             .min()
-            .cloned()?;
+            .cloned()
+            .ok_or(ParsingError)?;
 
         let max_y = groups
             .iter()
@@ -203,7 +214,8 @@ impl FromStr for World {
                 ClayGroup::Vertical(_, range) => range.end(),
             })
             .max()
-            .cloned()?;
+            .cloned()
+            .ok_or(ParsingError)?;
 
         let cols = max_x - min_x + 1;
         let y_len = max_y - min_y + 1;
@@ -235,12 +247,6 @@ struct ParsingError;
 
 impl From<regex::Error> for ParsingError {
     fn from(_: regex::Error) -> Self {
-        ParsingError
-    }
-}
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
         ParsingError
     }
 }

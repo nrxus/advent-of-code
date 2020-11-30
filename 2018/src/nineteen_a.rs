@@ -1,6 +1,4 @@
-#![feature(try_trait)]
-
-use std::{num::ParseIntError, option::NoneError, str::FromStr};
+use std::{num::ParseIntError, str::FromStr};
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -90,8 +88,8 @@ impl FromStr for Program {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut input = input.lines();
         let ip: usize = Regex::new(r"#ip (?P<ip>\d+)")?
-            .captures(input.next()?)?
-            .name("ip")?
+            .captures(input.next().ok_or(ParsingError)?).ok_or(ParsingError)?
+            .name("ip").ok_or(ParsingError)?
             .as_str()
             .parse()?;
         let lines = input.map(|l| Line::from_str(l)).collect::<Result<_, _>>()?;
@@ -114,11 +112,11 @@ impl FromStr for Line {
                 Regex::new(r"(?P<instruction>.*) (?P<a>\d+) (?P<b>\d+) (?P<c>\d+)").unwrap();
         }
 
-        let caps = RE.captures(input)?;
-        let instruction = caps.name("instruction")?.as_str();
-        let a = caps.name("a")?.as_str();
-        let b = caps.name("b")?.as_str();
-        let dst: usize = caps.name("c")?.as_str().parse()?;
+        let caps = RE.captures(input).ok_or(ParsingError)?;
+        let instruction = caps.name("instruction").ok_or(ParsingError)?.as_str();
+        let a = caps.name("a").ok_or(ParsingError)?.as_str();
+        let b = caps.name("b").ok_or(ParsingError)?.as_str();
+        let dst: usize = caps.name("c").ok_or(ParsingError)?.as_str().parse()?;
 
         let instruction = match instruction {
             "addr" => Instruction::AddR(a.parse()?, b.parse()?),
@@ -149,12 +147,6 @@ struct ParsingError;
 
 impl From<regex::Error> for ParsingError {
     fn from(_: regex::Error) -> Self {
-        ParsingError
-    }
-}
-
-impl From<NoneError> for ParsingError {
-    fn from(_: NoneError) -> Self {
         ParsingError
     }
 }

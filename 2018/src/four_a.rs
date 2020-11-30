@@ -1,5 +1,3 @@
-#![feature(try_trait)]
-
 mod guard_schedule;
 
 use self::guard_schedule::*;
