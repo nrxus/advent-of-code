@@ -1338,6 +1338,7 @@ name = "twenty-sixteen"
 version = "0.1.0"
 dependencies = [
  "common",
+ "regex",
 ]
 
 [[package]]
