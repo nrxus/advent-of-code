@@ -1,5 +1,6 @@
 fn solve(directions: &str) -> u32 {
     directions
+        .trim()
         .split(", ")
         .map(|d| d.parse().expect("failed to parse"))
         .sum::<Position>()
@@ -13,9 +14,9 @@ struct Position {
     direction: Direction,
 }
 
-enum Step {
-    Left(u32),
-    Right(u32),
+struct Step {
+    blocks: u32,
+    turn: Turn,
 }
 
 impl std::iter::Sum<Step> for Position {
@@ -28,36 +29,19 @@ impl std::ops::Add<Step> for Position {
     type Output = Position;
 
     fn add(self, rhs: Step) -> Self {
-        match (self.direction, rhs) {
-            (Direction::North, Step::Left(step)) | (Direction::South, Step::Right(step)) => {
-                Position {
-                    direction: Direction::West,
-                    x: self.x + step as i32,
-                    ..self
-                }
-            }
-            (Direction::North, Step::Right(step)) | (Direction::South, Step::Left(step)) => {
-                Position {
-                    direction: Direction::East,
-                    x: self.x - step as i32,
-                    ..self
-                }
-            }
-            (Direction::East, Step::Left(step)) | (Direction::West, Step::Right(step)) => {
-                Position {
-                    direction: Direction::North,
-                    y: self.y + step as i32,
-                    ..self
-                }
-            }
-            (Direction::East, Step::Right(step)) | (Direction::West, Step::Left(step)) => {
-                Position {
-                    direction: Direction::South,
-                    y: self.y - step as i32,
-                    ..self
-                }
-            }
-        }
+        // first turn
+        let direction = self.direction + rhs.turn;
+
+        // then advance blocks
+        let blocks = rhs.blocks as i32;
+        let (x, y) = match direction {
+            Direction::North => (self.x, self.y + blocks),
+            Direction::South => (self.x, self.y - blocks),
+            Direction::East => (self.x + blocks, self.y),
+            Direction::West => (self.x - blocks, self.y),
+        };
+
+        Position { x, y, direction }
     }
 }
 
@@ -67,6 +51,24 @@ enum Direction {
     South,
     East,
     West,
+}
+
+enum Turn {
+    Left,
+    Right,
+}
+
+impl std::ops::Add<Turn> for Direction {
+    type Output = Direction;
+
+    fn add(self, rhs: Turn) -> Self {
+        match (self, rhs) {
+            (Direction::North, Turn::Left) | (Direction::South, Turn::Right) => Direction::West,
+            (Direction::North, Turn::Right) | (Direction::South, Turn::Left) => Direction::East,
+            (Direction::East, Turn::Left) | (Direction::West, Turn::Right) => Direction::North,
+            (Direction::East, Turn::Right) | (Direction::West, Turn::Left) => Direction::South,
+        }
+    }
 }
 
 impl Default for Direction {
@@ -82,19 +84,24 @@ impl Position {
 }
 
 #[derive(Debug)]
-struct ParsingError;
+enum ParsingError {
+    Turn,
+    Block,
+}
 
 impl std::str::FromStr for Step {
     type Err = ParsingError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let turn = &s[0..1];
-        let n_blocks: u32 = s[1..].parse().map_err(|_| ParsingError)?;
-        match turn {
-            "L" => Ok(Step::Left(n_blocks)),
-            "R" => Ok(Step::Right(n_blocks)),
-            _ => Err(ParsingError),
-        }
+        let turn = match &s[0..1] {
+            "L" => Ok(Turn::Left),
+            "R" => Ok(Turn::Right),
+            _ => Err(ParsingError::Turn),
+        }?;
+
+        let blocks: u32 = s[1..].parse().map_err(|_| ParsingError::Block)?;
+
+        Ok(Step { turn, blocks })
     }
 }
 
