@@ -1,13 +1,12 @@
-use bitvec::prelude::{bitarr, Lsb0};
 use std::collections::HashSet;
 
 fn solve(seats: &str) -> u16 {
     let all_seats: HashSet<u16> = (0..1024).collect();
-    let full_seats: HashSet<_> = seats.trim().lines().map(seat_id).collect();
-    let empty_seats: HashSet<_> = all_seats.difference(&full_seats).cloned().collect();
+    let occupied_seats: HashSet<_> = seats.trim().lines().map(seat_id).collect();
+    let empty_seats: HashSet<_> = all_seats.difference(&occupied_seats).cloned().collect();
     let potential_seats: Vec<_> = empty_seats
         .into_iter()
-        .filter(|&s| full_seats.contains(&(s + 1)) && full_seats.contains(&(s - 1)))
+        .filter(|&s| occupied_seats.contains(&(s + 1)) && occupied_seats.contains(&(s - 1)))
         .collect();
 
     if potential_seats.len() != 1 {
@@ -21,35 +20,29 @@ fn solve(seats: &str) -> u16 {
 }
 
 fn seat_id(seat: &str) -> u16 {
-    let row = seat[0..7]
+    let row: String = seat[0..7]
         .chars()
-        .rev()
-        .enumerate()
-        .fold(bitarr![Lsb0, u8; 0; 8], |mut column, (i, c)| {
-            match c {
-                'F' => {}
-                'B' => column.set(i, true),
-                c => panic!("unexpected: {:?}", c),
-            };
-            column
+        .map(|c| match c {
+            'F' => '0',
+            'B' => '1',
+            c => panic!("unexpected: {:?}", c),
         })
-        .as_slice()[0];
+        .collect();
 
-    let column = seat[7..10]
+    let row = u16::from_str_radix(&row, 2).unwrap();
+
+    let column: String = seat[0..7]
         .chars()
-        .rev()
-        .enumerate()
-        .fold(bitarr![Lsb0, u8; 0; 3], |mut column, (i, c)| {
-            match c {
-                'L' => {}
-                'R' => column.set(i, true),
-                c => panic!("unexpected: {:?}", c),
-            };
-            column
+        .map(|c| match c {
+            'L' => '0',
+            'R' => '1',
+            c => panic!("unexpected: {:?}", c),
         })
-        .as_slice()[0];
+        .collect();
 
-    (row as u16) * 8 + (column as u16)
+    let column = u16::from_str_radix(&column, 2).unwrap();
+
+    row * 8 + (column as u16)
 }
 
 common::read_main!();
