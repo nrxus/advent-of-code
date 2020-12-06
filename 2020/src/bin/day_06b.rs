@@ -1,17 +1,18 @@
-#![feature(iterator_fold_self)]
+use std::collections::HashSet;
 
 fn solve(answers: &str) -> usize {
     answers
         .trim()
         .split("\n\n")
         .map(|group| {
-            group
+            let mut group = group
                 .lines()
-                .map(|person| person.chars().collect::<std::collections::HashSet<_>>())
-                .fold_first(|collected, answers| {
-                    collected.intersection(&answers).cloned().collect()
-                })
-                .unwrap()
+                .map(|person| person.chars().collect::<HashSet<_>>());
+
+            let first = group.next().unwrap();
+
+            group
+                .fold(first, |collected, answers| &collected & &answers)
                 .len()
         })
         .sum()
