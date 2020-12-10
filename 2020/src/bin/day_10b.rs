@@ -1,23 +1,22 @@
 use std::collections::HashMap;
 
 fn solve(input: &str) -> u64 {
-    let mut ratings: Vec<u32> = input.trim().lines().map(|l| l.parse().unwrap()).collect();
+    let mut ratings: Vec<u32> = std::iter::once(0)
+        .chain(input.trim().lines().map(|l| l.parse().unwrap()))
+        .collect();
+
     ratings.sort_unstable();
 
-    let mut last = 0;
     let mut counts = HashMap::new();
-    counts.insert(last, 1);
+    counts.insert(0, 1);
 
-    for (i, r) in ratings.iter().enumerate() {
-        let count = counts.remove(&last).unwrap();
-        let end = (i + 3).min(ratings.len());
+    for (i, goal) in ratings[..ratings.len() - 1].iter().enumerate() {
+        let count = counts.remove(&goal).unwrap();
 
-        ratings[i..end]
+        ratings[i + 1..]
             .iter()
-            .filter(|r| **r <= last + 3)
+            .take_while(|r| **r <= goal + 3)
             .for_each(|r| *counts.entry(*r).or_insert(0) += count);
-
-        last = *r;
     }
 
     if counts.len() != 1 {
