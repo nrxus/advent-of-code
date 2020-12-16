@@ -12,7 +12,6 @@ fn solve(input: &str) -> u32 {
 
     let constraints: Vec<_> = rules
         .lines()
-        .into_iter()
         .flat_map(|rule| {
             let captures = constraint_regex.captures(rule).unwrap();
             let min_one = captures.name("min_one").unwrap().as_str().parse().unwrap();
