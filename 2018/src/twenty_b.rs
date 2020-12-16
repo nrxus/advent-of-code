@@ -212,4 +212,3 @@ impl fmt::Display for House {
 }
 
 common::read_main!();
-//common::bootstrap!(16);

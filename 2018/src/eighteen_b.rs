@@ -162,7 +162,6 @@ impl FromStr for World {
 }
 
 common::read_main!();
-//common::bootstrap!(17);
 
 use std::fmt;
 

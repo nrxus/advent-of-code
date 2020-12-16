@@ -435,4 +435,3 @@ impl<T> Enum<T> for GenDelta {
 }
 
 common::read_main!();
-//common::bootstrap!(12);

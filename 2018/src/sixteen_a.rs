@@ -135,4 +135,3 @@ After:  [3, 2, 2, 1]";
 }
 
 common::read_main!();
-//common::bootstrap!(16);

@@ -366,4 +366,3 @@ impl fmt::Display for BattleField {
 }
 
 common::read_main!();
-//common::bootstrap!(15);

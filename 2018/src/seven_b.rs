@@ -104,6 +104,4 @@ Step F must be finished before step E can begin.";
     }
 }
 
-// common::read_main!();
-
-common::bootstrap!(7);
+common::read_main!();

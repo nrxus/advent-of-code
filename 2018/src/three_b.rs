@@ -149,4 +149,4 @@ mod test {
     }
 }
 
-common::bootstrap!(3);
+common::read_main!();

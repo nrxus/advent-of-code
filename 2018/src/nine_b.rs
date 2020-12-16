@@ -99,4 +99,3 @@ fn solve(input: &str) -> u32 {
 }
 
 common::read_main!();
-//common::bootstrap!(9);

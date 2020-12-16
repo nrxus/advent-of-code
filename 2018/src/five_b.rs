@@ -17,7 +17,7 @@ fn solve(input: &str) -> usize {
         .unwrap()
 }
 
-common::bootstrap!(5);
+common::read_main!();
 
 #[cfg(test)]
 mod test {

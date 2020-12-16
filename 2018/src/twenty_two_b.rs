@@ -351,4 +351,3 @@ target: 10,10
 }
 
 common::read_main!();
-//common::bootstrap!(16);

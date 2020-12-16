@@ -56,14 +56,4 @@ mod test {
     }
 }
 
-use std::io::{self, Read};
-
-fn main() {
-    let mut input = String::new();
-    io::stdin().read_to_string(&mut input).unwrap();
-
-    let output = solve(&input);
-    println!("{}", output);
-}
-
-//common::bootstrap!(4);
+common::read_main!();

@@ -95,4 +95,3 @@ fn solve(input: &str) -> String {
 }
 
 common::read_main!();
-//common::bootstrap!(10);

@@ -309,4 +309,3 @@ mod tests {
 }
 
 common::read_main!();
-//common::bootstrap!(16);

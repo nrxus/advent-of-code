@@ -66,4 +66,4 @@ ababab"#
     }
 }
 
-common::bootstrap!(2);
+common::read_main!();

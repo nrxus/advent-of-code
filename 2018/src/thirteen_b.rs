@@ -227,8 +227,8 @@ mod tests {
 
     #[test]
     fn test() {
-        let input = r"/>-<\  
-|   |  
+        let input = r"/>-<\
+|   |
 | /<+-\
 | | | v
 \>+</ |
@@ -239,4 +239,3 @@ mod tests {
 }
 
 common::read_main!();
-//common::bootstrap!(12);

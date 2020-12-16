@@ -1,8 +1,6 @@
-use common::{bootstrap, sanitize};
+use common::sanitize;
 
 use std::collections::HashSet;
-
-bootstrap!(1);
 
 fn solve(input: &str) -> i32 {
     sanitize::to_i32s(input)
@@ -85,3 +83,5 @@ mod tests {
         );
     }
 }
+
+common::read_main!();

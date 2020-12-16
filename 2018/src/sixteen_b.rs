@@ -167,4 +167,3 @@ impl From<ParseIntError> for ParsingError {
 }
 
 common::read_main!();
-//common::bootstrap!(16);

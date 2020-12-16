@@ -49,5 +49,4 @@ mod tests {
     }
 }
 
-//common::read_main!();
-common::bootstrap!(6);
+common::read_main!();

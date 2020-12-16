@@ -276,7 +276,6 @@ y=13, x=498..504";
 }
 
 common::read_main!();
-//common::bootstrap!(17);
 
 use std::fmt;
 

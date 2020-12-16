@@ -74,4 +74,3 @@ pos=<1,3,1>, r=1";
 }
 
 common::read_main!();
-//common::bootstrap!(16);

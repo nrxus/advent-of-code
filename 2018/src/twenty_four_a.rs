@@ -280,4 +280,3 @@ Infection:
 }
 
 common::read_main!();
-//common::bootstrap!(24);

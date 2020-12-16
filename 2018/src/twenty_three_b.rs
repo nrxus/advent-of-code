@@ -293,4 +293,3 @@ pos=<10,10,10>, r=5";
 }
 
 common::read_main!();
-//common::bootstrap!(16);

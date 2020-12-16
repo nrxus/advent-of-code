@@ -88,8 +88,10 @@ impl FromStr for Program {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         let mut input = input.lines();
         let ip: usize = Regex::new(r"#ip (?P<ip>\d+)")?
-            .captures(input.next().ok_or(ParsingError)?).ok_or(ParsingError)?
-            .name("ip").ok_or(ParsingError)?
+            .captures(input.next().ok_or(ParsingError)?)
+            .ok_or(ParsingError)?
+            .name("ip")
+            .ok_or(ParsingError)?
             .as_str()
             .parse()?;
         let lines = input.map(|l| Line::from_str(l)).collect::<Result<_, _>>()?;
@@ -176,4 +178,3 @@ seti 9 0 5";
 }
 
 common::read_main!();
-//common::bootstrap!(16);

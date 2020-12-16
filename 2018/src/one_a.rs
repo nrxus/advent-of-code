@@ -1,6 +1,4 @@
-use common::{bootstrap, sanitize};
-
-bootstrap!(1);
+use common::sanitize;
 
 fn solve(input: &str) -> i32 {
     sanitize::to_i32s(input).sum()
@@ -40,3 +38,5 @@ mod test {
         );
     }
 }
+
+common::read_main!();
