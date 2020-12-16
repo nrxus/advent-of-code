@@ -15,7 +15,7 @@ macro_rules! read_main {
             let micros = elapsed.subsec_micros() - millis * 1000;
 
             println!(
-                "{}\n\nfinished in: {seconds}s {ms}.{us}ms",
+                "{}\n\nfinished in: {seconds}s {ms}.{us:03}ms",
                 solution,
                 seconds = seconds,
                 ms = millis,
