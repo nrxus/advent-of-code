@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 fn solve(tiles: &str) -> usize {
-    let mut white_tiles = HashSet::new();
+    let mut black_tiles = HashSet::new();
 
     tiles
         .trim()
@@ -45,15 +45,15 @@ fn solve(tiles: &str) -> usize {
                 start = end;
             }
 
-            if white_tiles.contains(&position) {
-                white_tiles.remove(&position)
+            if black_tiles.contains(&position) {
+                black_tiles.remove(&position)
             } else {
-                white_tiles.insert(position)
+                black_tiles.insert(position)
             }
         })
         .for_each(|_| {});
 
-    white_tiles.len()
+    black_tiles.len()
 }
 
 #[cfg(test)]
