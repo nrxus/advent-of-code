@@ -1,4 +1,4 @@
-use enum_map::{Enum, EnumMap};
+use enum_map::{enum_map, Enum};
 use intcode::{Machine, MachineResult};
 use std::collections::HashSet;
 
@@ -12,47 +12,47 @@ fn solve(input: &str) -> usize {
     let mut oxygen_frontier = HashSet::new();
 
     while let Some(step) = frontier.pop() {
+        let new_frontier = enum_map! {
+            direction => match step.machine.clone().execute() {
+                MachineResult::AwaitingInput(ai) => ai.provide(direction as i64),
+                _ => panic!("expected the need of input"),
+            }
+        };
+
         let new_frontier =
-            EnumMap::from(
-                |direction: Direction| match step.machine.clone().execute() {
-                    MachineResult::AwaitingInput(ai) => ai.provide(direction as i64),
-                    _ => panic!("expected the need of input"),
-                },
-            );
-        let new_frontier: Vec<_> = new_frontier
-            .into_iter()
-            .filter_map(|(direction, machine)| match machine.execute() {
-                MachineResult::HasOutput(ho) => {
-                    let (output, machine) = ho.read();
-                    if output == 0 {
-                        None
-                    } else {
-                        let position = match direction {
-                            Direction::North => (step.position.0, step.position.1 + 1),
-                            Direction::South => (step.position.0, step.position.1 - 1),
-                            Direction::East => (step.position.0 - 1, step.position.1),
-                            Direction::West => (step.position.0 + 1, step.position.1),
-                        };
-                        if lacking_oxygen.contains(&position) {
+            new_frontier
+                .into_iter()
+                .filter_map(|(direction, machine)| match machine.execute() {
+                    MachineResult::HasOutput(ho) => {
+                        let (output, machine) = ho.read();
+                        if output == 0 {
                             None
                         } else {
-                            lacking_oxygen.insert(position);
-                            Some((
-                                Step {
-                                    position,
-                                    machine,
-                                    steps: step.steps + 1,
-                                },
-                                output == 2,
-                            ))
+                            let position = match direction {
+                                Direction::North => (step.position.0, step.position.1 + 1),
+                                Direction::South => (step.position.0, step.position.1 - 1),
+                                Direction::East => (step.position.0 - 1, step.position.1),
+                                Direction::West => (step.position.0 + 1, step.position.1),
+                            };
+                            if lacking_oxygen.contains(&position) {
+                                None
+                            } else {
+                                lacking_oxygen.insert(position);
+                                Some((
+                                    Step {
+                                        position,
+                                        machine,
+                                        steps: step.steps + 1,
+                                    },
+                                    output == 2,
+                                ))
+                            }
                         }
                     }
-                }
-                _ => panic!("expected to get output"),
-            })
-            .collect();
+                    _ => panic!("expected to get output"),
+                });
 
-        for (step, done) in new_frontier.into_iter() {
+        for (step, done) in new_frontier {
             if done {
                 oxygen_frontier.insert(step.position);
             }

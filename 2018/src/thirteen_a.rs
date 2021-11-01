@@ -156,8 +156,10 @@ fn solve(input: &str) -> Coord {
             map.push(t);
         });
 
+    dbg!(&cols);
     let mut coords: HashSet<_> = carts.iter().map(|c| c.position).collect();
     loop {
+        dbg!(&carts);
         carts.sort_by_key(|c| c.position);
         let crash = carts.iter_mut().find_map(|c| {
             coords.remove(&c.position);
@@ -206,13 +208,13 @@ mod tests {
 
     #[test]
     fn test() {
-        let input = r"/->-\
+        let input = r"/->-\        ".to_owned() + r"
 |   |  /----\
 | /-+--+-\  |
 | | |  | v  |
 \-+-/  \-+--/
   \------/   ";
-        assert_eq!(solve(input), Coord { x: 7, y: 3 });
+        assert_eq!(solve(&input), Coord { x: 7, y: 3 });
     }
 }
 

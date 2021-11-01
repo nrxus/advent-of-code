@@ -15,7 +15,7 @@ fn solve(input: &str) -> i32 {
         .lines()
         .map(|id| {
             id.chars()
-                .fold(EnumMap::<_, HashSet<_>>::new(), |mut count, c| {
+                .fold(EnumMap::<_, HashSet<_>>::default(), |mut count, c| {
                     if count[Count::TooMany].contains(&c) {
                         //do nothing
                     } else if count[Count::Three].contains(&c) {

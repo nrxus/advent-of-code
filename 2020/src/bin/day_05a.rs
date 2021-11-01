@@ -1,4 +1,4 @@
-use bitvec::prelude::{bitarr, Lsb0};
+use bitvec::prelude::{bitarr, BitStore, Lsb0};
 
 fn solve(seats: &str) -> u32 {
     seats.trim().lines().map(cost_id).max().unwrap()
@@ -17,7 +17,7 @@ fn cost_id(seat: &str) -> u32 {
             };
             column
         })
-        .as_slice()[0];
+        .as_raw_slice()[0];
 
     let column = seat[7..10]
         .chars()
@@ -31,7 +31,7 @@ fn cost_id(seat: &str) -> u32 {
             };
             column
         })
-        .as_slice()[0];
+        .as_raw_slice()[0];
 
     row * 8 + column
 }

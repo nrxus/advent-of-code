@@ -2,10 +2,10 @@
 name = "twenty-sixteen"
 version = "0.1.0"
 authors = ["Andres <andresnrx@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-regex = "1.4"
-lazy_static = "1.4"
-md5 = "0.7"
+regex = "1.5.4"
+lazy_static = "1.4.0"
+md5 = "0.7.0"

@@ -19,7 +19,7 @@ fn solve(input: &str) -> Answer {
     }
 
     let scores: Vec<_> = scores.into_iter().skip(input).take(10).collect();
-    Answer(array![|x| scores[x]; 10])
+    Answer(array![x => scores[x]; 10])
 }
 
 #[derive(Default)]

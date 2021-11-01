@@ -254,7 +254,7 @@ impl PartialOrd for Region<'_> {
 impl<'n> Region<'n> {
     fn divide(&self) -> [Region<'n>; 8] {
         let boxes = self.bounds.divide();
-        array![|i| Region {
+        array![i => Region {
             bounds: boxes[i],
             nanobots: self.nanobots.iter().filter(|n| n.intersects(&boxes[i])).cloned().collect()
         }; 8]

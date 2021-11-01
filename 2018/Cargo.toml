@@ -2,7 +2,7 @@
 name = "twenty-eighteen"
 version = "0.1.0"
 authors = ["Andres <andresnrx@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [[bin]]
 name = "one_a"
@@ -194,12 +194,12 @@ path = "src/twenty_five.rs"
 
 [dependencies]
 common = { path = "../common" }
-reqwest = "0.10.9"
-cookie = "0.14.3"
-enum-map = "0.6.4"
+reqwest = "0.11.6"
+cookie = "0.15.1"
+enum-map = "1.1.1"
 lazy_static = "1.4.0"
-regex = "1.4.2"
-rayon = "1.5.0"
-array-macro = "1.0.5"
-strum = "0.20.0"
-strum_macros = "0.20.1"
+regex = "1.5.4"
+rayon = "1.5.1"
+array-macro = "2.1.0"
+strum = "0.22.0"
+strum_macros = "0.22.0"

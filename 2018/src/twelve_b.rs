@@ -121,7 +121,7 @@ fn deltas<'a>(lines: impl Iterator<Item = &'a str>) -> EnumMap<GenDelta, PotStat
             let fifth = PotState::new(prev[4]);
             (GenDelta([first, second, third, fourth, fifth]), next)
         })
-        .fold(EnumMap::new(), |mut deltas, (d, s)| {
+        .fold(EnumMap::default(), |mut deltas, (d, s)| {
             deltas[d] = s;
             deltas
         })
@@ -140,17 +140,6 @@ fn initial(input: &str) -> Vec<(isize, PotState)> {
 
 impl<T> Enum<T> for GenDelta {
     type Array = [T; 32];
-    const POSSIBLE_VALUES: usize = 32;
-
-    #[inline]
-    fn slice(array: &Self::Array) -> &[T] {
-        array
-    }
-
-    #[inline]
-    fn slice_mut(array: &mut Self::Array) -> &mut [T] {
-        array
-    }
 
     #[inline]
     fn from_usize(value: usize) -> Self {
@@ -192,7 +181,7 @@ impl<T> Enum<T> for GenDelta {
     }
 
     #[inline]
-    fn to_usize(self) -> usize {
+    fn into_usize(self) -> usize {
         self.0
             .iter()
             .enumerate()
@@ -201,236 +190,6 @@ impl<T> Enum<T> for GenDelta {
                 PotState::Full => 2_usize.pow(i as u32),
             })
             .sum()
-    }
-
-    #[inline]
-    fn from_function<F: FnMut(Self) -> T>(mut f: F) -> Self::Array {
-        [
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-                PotState::Full,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Empty,
-            ])),
-            f(GenDelta([
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-                PotState::Full,
-            ])),
-        ]
     }
 }
 

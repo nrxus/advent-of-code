@@ -227,14 +227,14 @@ mod tests {
 
     #[test]
     fn test() {
-        let input = r"/>-<\
-|   |
+        let input = r"/>-<\  ".to_string() + r"
+|   |  " + r"
 | /<+-\
 | | | v
 \>+</ |
   |   ^
   \<->/";
-        assert_eq!(solve(input), Coord { x: 6, y: 4 });
+        assert_eq!(solve(&input), Coord { x: 6, y: 4 });
     }
 }
 
