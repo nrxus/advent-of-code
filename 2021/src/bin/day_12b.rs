@@ -7,7 +7,10 @@ fn solve(input: &str) -> usize {
     let connections: HashMap<Cave, HashSet<Cave>> = input
         .trim()
         .lines()
-        .map(|c| Connection::try_from(c).unwrap())
+        .map(|line| {
+            let (a, b) = line.split_once('-').expect("missing '-' in connection");
+            (Cave::try_from(a).unwrap(), Cave::try_from(b).unwrap())
+        })
         .fold(HashMap::new(), |mut acc, conn| {
             if conn.1 != Cave::Start && conn.0 != Cave::End {
                 acc.entry(conn.0).or_default().insert(conn.1);
@@ -20,27 +23,25 @@ fn solve(input: &str) -> usize {
         });
 
     let mut frontier = vec![Path::new()];
-    let mut full_paths: HashSet<Path> = HashSet::new();
+    let mut paths_found = 0_usize;
 
     while let Some(path) = frontier.pop() {
         let next = match connections.get(&path.last) {
-            None => continue,
+            None => {
+                // the only way this could happen is if path.last == End
+                paths_found += 1;
+                continue;
+            }
             Some(n) => n,
         };
-        let next = path.extend(next.iter());
-        for path in next {
-            if path.last == Cave::End {
-                full_paths.insert(path);
-            } else {
-                frontier.push(path);
-            }
-        }
+        let extended_paths = path.extend(next.iter());
+        frontier.extend(extended_paths);
     }
 
-    full_paths.len()
+    paths_found
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Path<'s> {
     last: Cave<'s>,
     previous: Vec<Cave<'s>>,
@@ -48,36 +49,8 @@ pub struct Path<'s> {
     single_repeat: Option<Cave<'s>>,
 }
 
-impl Display for Path<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.previous
-            .iter()
-            .map(|p| match p {
-                Cave::Start => "start",
-                Cave::End => "end",
-                Cave::Small(s) => s,
-                Cave::Big(b) => b,
-            })
-            .try_for_each(|p| {
-                f.write_str(p)?;
-                f.write_char(',')?;
-                Ok(())
-            })?;
-
-        f.write_str("end")
-    }
-}
-
-impl std::hash::Hash for Path<'_> {
-    // deliberately ignore small_caves
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.last.hash(state);
-        self.previous.hash(state);
-    }
-}
-
 impl<'s> Path<'s> {
-    pub fn new() -> Path<'s> {
+    pub fn new() -> Self {
         Path {
             last: Cave::Start,
             previous: vec![],
@@ -118,7 +91,27 @@ impl<'s> Path<'s> {
     }
 }
 
-impl<'s> Default for Path<'s> {
+impl Display for Path<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.previous
+            .iter()
+            .map(|p| match p {
+                Cave::Start => "start",
+                Cave::End => "end",
+                Cave::Small(s) => s,
+                Cave::Big(b) => b,
+            })
+            .try_for_each(|p| {
+                f.write_str(p)?;
+                f.write_char(',')?;
+                Ok(())
+            })?;
+
+        f.write_str("end")
+    }
+}
+
+impl Default for Path<'_> {
     fn default() -> Self {
         Self::new()
     }
@@ -143,21 +136,6 @@ impl<'s> TryFrom<&'s str> for Cave<'s> {
             v if v.chars().all(|v| v.is_uppercase()) => Ok(Self::Big(v)),
             _ => Err("invalid cavern name".to_owned().into()),
         }
-    }
-}
-
-#[derive(Debug)]
-struct Connection<'s>(Cave<'s>, Cave<'s>);
-
-impl<'s> TryFrom<&'s str> for Connection<'s> {
-    type Error = Box<dyn std::error::Error>;
-
-    fn try_from(value: &'s str) -> Result<Self, Self::Error> {
-        let (a, b) = value
-            .split_once('-')
-            .ok_or_else(|| "missing '-' in connection".to_owned())?;
-
-        Ok(Connection(a.try_into()?, b.try_into()?))
     }
 }
 
