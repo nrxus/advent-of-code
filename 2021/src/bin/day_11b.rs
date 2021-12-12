@@ -1,7 +1,7 @@
 use std::{
     collections::HashSet,
     error::Error,
-    fmt::{self, Formatter, Write},
+    fmt::{self, Formatter},
     str::FromStr,
 };
 
