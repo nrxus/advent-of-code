@@ -1260,6 +1260,8 @@ version = "0.1.0"
 dependencies = [
  "bitvec",
  "common",
+ "lazy_static",
+ "regex",
 ]
 
 [[package]]
