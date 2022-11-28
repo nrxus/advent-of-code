@@ -8,7 +8,7 @@ fn solve(input: &str) -> u32 {
         .lines()
         .map(|line| {
             let number = u64::from_str_radix(line, 2).unwrap();
-            let mut number = BitVec::<Lsb0, _>::from_element(number);
+            let mut number = BitVec::from_element(number);
             number.truncate(line.len());
             number.reverse();
             number
@@ -22,7 +22,7 @@ fn solve(input: &str) -> u32 {
 }
 
 fn extract_rating(
-    mut numbers: Vec<BitVec<Lsb0, u64>>,
+    mut numbers: Vec<BitVec<u64, Lsb0>>,
     matcher: impl Fn(std::cmp::Ordering) -> bool,
 ) -> u32 {
     assert!(!numbers.is_empty());

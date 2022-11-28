@@ -1,4 +1,4 @@
-use bitvec::prelude::{bitarr, BitStore, Lsb0};
+use bitvec::prelude::{bitarr, Lsb0};
 
 fn solve(seats: &str) -> u32 {
     seats.trim().lines().map(cost_id).max().unwrap()
@@ -9,7 +9,7 @@ fn cost_id(seat: &str) -> u32 {
         .chars()
         .rev()
         .enumerate()
-        .fold(bitarr![Lsb0, u32; 0; 8], |mut column, (i, c)| {
+        .fold(bitarr![u32, Lsb0; 0; 8], |mut column, (i, c)| {
             match c {
                 'F' => {}
                 'B' => column.set(i, true),
@@ -23,7 +23,7 @@ fn cost_id(seat: &str) -> u32 {
         .chars()
         .rev()
         .enumerate()
-        .fold(bitarr![Lsb0, u32; 0; 3], |mut column, (i, c)| {
+        .fold(bitarr![u32, Lsb0; 0; 3], |mut column, (i, c)| {
             match c {
                 'L' => {}
                 'R' => column.set(i, true),

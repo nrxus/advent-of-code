@@ -8,6 +8,6 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-regex = "1.5.4"
-lazy_static = "1.4.0"
-bitvec = "0.22.3"
+regex = "1"
+lazy_static = "1"
+bitvec = "1"
