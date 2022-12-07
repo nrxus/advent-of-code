@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 
 use common::read_main;
 
@@ -22,7 +22,9 @@ fn solve(input: &str) -> usize {
                 "$" => {
                     let (_cd, dir) = rest.split_once(' ').unwrap();
                     if dir == ".." {
+                        let size = fs[current].size;
                         current = fs[current].parent.expect("missing parent");
+                        fs[current].size += size;
                     } else {
                         current = *fs[current].children.get(dir).unwrap();
                     }
@@ -33,50 +35,30 @@ fn solve(input: &str) -> usize {
                     assert!(fs[current].children.insert(rest, new_inode).is_none());
                 }
                 size => {
-                    fs[current].direct_size += size.parse::<usize>().unwrap();
+                    fs[current].size += size.parse::<usize>().unwrap();
                 }
             }
         });
 
-    let mut sizes = HashMap::new();
-    let mut frontier = VecDeque::new();
-    frontier.push_back((0, fs[0].clone()));
-    while let Some((inode, dir)) = frontier.pop_back() {
-        let sum = dir
-            .children
-            .values()
-            .fold(Some(dir.direct_size), |sum, &child| {
-                match (sum, sizes.get(&child)) {
-                    (_, None) => {
-                        frontier.push_back((child, fs[child].clone()));
-                        None
-                    }
-                    (None, Some(_)) => None,
-                    (Some(sum), Some(size)) => Some(sum + size),
-                }
-            });
-
-        match sum {
-            Some(s) => {
-                sizes.insert(inode, s);
-            }
-            None => frontier.push_front((inode, dir)),
-        }
+    // add size of current dir all the way back to root
+    while let Some(parent) = fs[current].parent {
+        fs[parent].size += fs[current].size;
+        current = parent;
     }
 
-    let used_space = sizes.get(&0).unwrap();
+    let used_space = fs[0].size;
     let Some(min_to_free) = used_space.checked_sub(MAX_USED_SPACE) else {
         return 0;
     };
 
-    let mut sizes: Vec<_> = sizes.into_values().collect();
+    let mut sizes: Vec<_> = fs.into_iter().map(|dir| dir.size).collect();
     sizes.sort();
     sizes.into_iter().find(|s| *s >= min_to_free).unwrap()
 }
 
 #[derive(Clone, Debug, Default)]
 struct Directory<'s> {
-    direct_size: usize,
+    size: usize,
     children: HashMap<&'s str, usize>,
     parent: Option<usize>,
 }
