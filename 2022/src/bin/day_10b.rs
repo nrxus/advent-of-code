@@ -36,7 +36,7 @@ fn solve(input: &str) -> Crt {
             ((mid_pos - 1)..=(mid_pos + 1)).contains(&drawn)
         };
 
-        mid_pos += num as i8;
+        mid_pos += num;
 
         cycle += 1;
         if cycle > 240 {
