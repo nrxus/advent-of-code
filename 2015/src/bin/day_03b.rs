@@ -1,35 +1,30 @@
 use std::collections::HashSet;
 
+use common::read_main;
+
 fn solve(input: &str) -> usize {
-    let santa = input.chars().step_by(2).coordinates();
-    let robot_santa = input.chars().skip(1).step_by(2).coordinates();
+    let mut positions: HashSet<_> = input
+        .trim()
+        .chars()
+        .enumerate()
+        .scan(((0, 0), (0, 0)), |(santa, robot), (i, c)| {
+            let changed = if i % 2 == 0 { santa } else { robot };
 
-    let mut grid = HashSet::new();
-    grid.insert((0, 0));
-    grid.extend(santa);
-    grid.extend(robot_santa);
-    grid.len()
-}
+            match c {
+                '>' => changed.0 += 1,
+                '<' => changed.0 -= 1,
+                '^' => changed.1 -= 1,
+                'v' => changed.1 += 1,
+                c => panic!("unexpected: {c}"),
+            };
 
-trait DirectionIterExt {
-    fn coordinates(self) -> HashSet<(i32, i32)>;
-}
-
-impl<I: Iterator<Item = char>> DirectionIterExt for I {
-    fn coordinates(self) -> HashSet<(i32, i32)> {
-        self.map(|c| match c {
-            '>' => (1, 0),
-            '<' => (-1, 0),
-            '^' => (0, -1),
-            'v' => (0, 1),
-            _ => panic!("not parseable direction"),
+            Some(*changed)
         })
-        .scan((0, 0), |location, direction| {
-            *location = (location.0 + direction.0, location.1 + direction.1);
-            Some(*location)
-        })
-        .collect::<HashSet<_>>()
-    }
+        .collect();
+
+    positions.insert((0, 0));
+
+    positions.len()
 }
 
 #[cfg(test)]
@@ -37,19 +32,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_single() {
+    fn example() {
         assert_eq!(solve("^v"), 3);
-    }
-
-    #[test]
-    fn test_many() {
         assert_eq!(solve("^>v<"), 3);
-    }
-
-    #[test]
-    fn repeated() {
         assert_eq!(solve("^v^v^v^v^v"), 11);
     }
 }
 
-common::read_main!();
+read_main!();

@@ -1,9 +1,17 @@
-fn solve(input: &str) -> usize {
-    (0..)
-        .map(|i| format!("{}{}", input.trim(), i))
-        .map(|data| md5::compute(data))
-        .take_while(|hash| hash[0] != 0 || hash[1] != 0 || hash[2] > 15)
-        .count()
+use common::read_main;
+use md5::Digest;
+
+fn solve(input: &str) -> u32 {
+    let input = input.trim();
+
+    (1..)
+        .find(|i| {
+            let mut hasher = md5::Md5::new();
+            hasher.update(format!("{input}{i}"));
+            let result = hasher.finalize();
+            result[0..2] == [0, 0] && result[2] < 0x10
+        })
+        .unwrap()
 }
 
 #[cfg(test)]
@@ -11,14 +19,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_a() {
+    fn example() {
         assert_eq!(solve("abcdef"), 609043);
-    }
-
-    #[test]
-    fn test_b() {
         assert_eq!(solve("pqrstuv"), 1048970);
     }
 }
 
-common::read_main!();
+read_main!();

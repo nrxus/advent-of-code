@@ -1,22 +1,26 @@
 use std::collections::HashSet;
 
+use common::read_main;
+
 fn solve(input: &str) -> usize {
-    let mut grid = input
+    let mut positions: HashSet<_> = input
+        .trim()
         .chars()
-        .map(|c| match c {
-            '>' => (1, 0),
-            '<' => (-1, 0),
-            '^' => (0, -1),
-            'v' => (0, 1),
-            _ => panic!("not parseable direction"),
+        .scan((0, 0), |pos, c| {
+            match c {
+                '>' => pos.0 += 1,
+                '<' => pos.0 -= 1,
+                '^' => pos.1 -= 1,
+                'v' => pos.1 += 1,
+                c => panic!("unexpected: {c}"),
+            };
+            Some(*pos)
         })
-        .scan((0, 0), |location, direction| {
-            *location = (location.0 + direction.0, location.1 + direction.1);
-            Some(*location)
-        })
-        .collect::<HashSet<_>>();
-    grid.insert((0, 0));
-    grid.len()
+        .collect();
+
+    positions.insert((0, 0));
+
+    positions.len()
 }
 
 #[cfg(test)]
@@ -24,19 +28,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_single() {
+    fn example() {
         assert_eq!(solve(">"), 2);
-    }
-
-    #[test]
-    fn test_many() {
         assert_eq!(solve("^>v<"), 4);
-    }
-
-    #[test]
-    fn repeated() {
         assert_eq!(solve("^v^v^v^v^v"), 2);
     }
 }
 
-common::read_main!();
+read_main!();

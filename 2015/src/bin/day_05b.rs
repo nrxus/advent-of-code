@@ -1,33 +1,35 @@
-use std::collections::HashSet;
+use std::collections::{hash_map, HashMap};
+
+use common::read_main;
 
 fn solve(input: &str) -> usize {
-    struct State {
-        previous: [char; 2],
-        rest: HashSet<[char; 2]>,
-    }
+    input
+        .trim()
+        .lines()
+        .filter(|line| {
+            let line = line.as_bytes();
 
-    let is_nice = |l: &&str| {
-        let l = l.chars().collect::<Vec<_>>();
-        let sandwich = l.windows(3).any(|w| w[0] == w[2]);
-        let state = State {
-            previous: [l[0], l[1]],
-            rest: HashSet::new(),
-        };
-        let pair_repeated = l
-            .windows(2)
-            .skip(1)
-            .scan(state, |state, pair| {
-                let pair = [pair[0], pair[1]];
-                let repeated = state.rest.contains(&pair);
-                state.rest.insert(state.previous);
-                state.previous = pair;
-                Some(repeated)
-            })
-            .any(|repeated| repeated);
-        sandwich && pair_repeated
-    };
+            if !line.windows(3).any(|pair| pair[0] == pair[2]) {
+                return false;
+            }
 
-    input.lines().filter(is_nice).count()
+            let mut pairs = HashMap::new();
+            for (i, pair) in line.windows(2).enumerate() {
+                match pairs.entry(pair) {
+                    hash_map::Entry::Occupied(o) => {
+                        if *o.get() < i - 1 {
+                            return true;
+                        }
+                    }
+                    hash_map::Entry::Vacant(v) => {
+                        v.insert(i);
+                    }
+                }
+            }
+
+            false
+        })
+        .count()
 }
 
 #[cfg(test)]
@@ -35,15 +37,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_singles() {
-        assert_eq!(solve("qjhvhtzxzqqjkmpb"), 1);
-        assert_eq!(solve("xxyxx"), 1);
-        assert_eq!(solve("uurcxstgmygtbstg"), 0);
-        assert_eq!(solve("ieodomkazucvgmuy"), 0);
-    }
-
-    #[test]
-    fn test_many() {
+    fn example() {
         let input = r"qjhvhtzxzqqjkmpb
 xxyxx
 uurcxstgmygtbstg
@@ -52,4 +46,4 @@ ieodomkazucvgmuy";
     }
 }
 
-common::read_main!();
+read_main!();

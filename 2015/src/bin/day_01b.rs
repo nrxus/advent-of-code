@@ -1,34 +1,35 @@
+use common::read_main;
+
 fn solve(input: &str) -> usize {
     input
         .trim()
         .chars()
-        .map(|c| match c {
-            '(' => 1,
-            ')' => -1,
-            _ => panic!("unexpected input"),
-        })
-        .scan(0, |state, x| {
-            *state = *state + x;
+        .scan(0, |state, c| {
+            match c {
+                '(' => {
+                    *state += 1;
+                }
+                ')' => {
+                    *state -= 1;
+                }
+                c => panic!("unexpected {c}"),
+            };
             Some(*state)
         })
-        .position(|floor| floor == -1)
+        .position(i16::is_negative)
         .unwrap()
         + 1
 }
-
-common::read_main!();
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_simple() {
+    fn example() {
         assert_eq!(solve(")"), 1);
-    }
-
-    #[test]
-    fn test_middle() {
         assert_eq!(solve("()())"), 5);
     }
 }
+
+read_main!();
