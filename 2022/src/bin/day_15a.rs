@@ -27,8 +27,9 @@ fn solve(input: &str) -> usize {
         }
         let distance_to_beacon = sensor.0.abs_diff(beacon.0) + sensor.1.abs_diff(beacon.1);
         let distance_to_y = sensor.1.abs_diff(DESIRED_Y);
-        let Some(x_range) = distance_to_beacon
-                .checked_sub(distance_to_y) else { return; };
+        let Some(x_range) = distance_to_beacon.checked_sub(distance_to_y) else {
+            return;
+        };
 
         let min_x = sensor.0 - (x_range as i32);
         let max_x = sensor.0 + (x_range as i32);

@@ -226,13 +226,15 @@ fn calculate_potential(
     let mut potential = 0;
     let mut unopened = unopened.iter().rev();
     loop {
-        let Some(after_opening) = time_left.checked_sub(1) else { break };
+        let Some(after_opening) = time_left.checked_sub(1) else {
+            break;
+        };
         if at_opened[0] {
-            let Some(valve) = unopened.next() else {break};
+            let Some(valve) = unopened.next() else { break };
             potential += valve.rate * after_opening as u16;
         }
         if at_opened[1] {
-            let Some(valve) = unopened.next() else {break};
+            let Some(valve) = unopened.next() else { break };
             potential += valve.rate * after_opening as u16;
         }
         at_opened[0] = !at_opened[0];

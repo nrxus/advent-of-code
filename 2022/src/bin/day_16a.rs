@@ -136,7 +136,9 @@ struct Node<'s, 'v> {
 fn calculate_potential(unopened: &BTreeSet<&Valve>, mut time_left: u8) -> u16 {
     let mut potential = 0;
     for valve in unopened.iter().rev() {
-        let Some(after_opening) = time_left.checked_sub(2) else { break };
+        let Some(after_opening) = time_left.checked_sub(2) else {
+            break;
+        };
         potential += valve.rate * after_opening as u16;
         time_left = after_opening;
     }
