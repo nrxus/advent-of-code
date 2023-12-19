@@ -44,12 +44,12 @@ fn solve(input: &str) -> i32 {
         .map(|d| (start, d, 0)),
     );
 
-    while let Some((node, direction, steps)) = dbg!(frontier.pop_back()) {
+    while let Some((node, direction, steps)) = frontier.pop_back() {
         if steps != 0 && node == start {
             return steps / 2;
         }
 
-        let Some(pipe) = dbg!(map.get(&node)) else { continue };
+        let Some(pipe) = map.get(&node) else { continue };
 
         let direction = match (pipe, direction) {
             (Pipe::NorthSouth, Direction::North) => Direction::North,
@@ -68,7 +68,7 @@ fn solve(input: &str) -> i32 {
             _ => continue,
         };
 
-        let Some(next) = (match dbg!(direction) {
+        let Some(next) = (match direction {
             Direction::North => node.1.checked_sub(1).map(|up| (node.0, up)),
             Direction::South => Some((node.0, node.1 + 1)),
             Direction::West => node.0.checked_sub(1).map(|left| (left, node.1)),
@@ -77,7 +77,7 @@ fn solve(input: &str) -> i32 {
             continue;
         };
 
-        frontier.push_front((dbg!(next), direction, steps + 1))
+        frontier.push_front((next, direction, steps + 1))
     }
 
     panic!("did not find loop")

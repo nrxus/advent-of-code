@@ -25,7 +25,9 @@ fn solve(input: &str) -> u32 {
 
     while let Some((cmp::Reverse(old_cost), node)) = frontier.pop() {
         if node.pos == end {
-            return old_cost;
+            if node.in_a_row >= 4 {
+                return old_cost;
+            }
         }
 
         let mut next = [None, None, None];
